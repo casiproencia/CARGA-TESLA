@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora Carga Tesla Model 3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f2f2f2; }
+        h1 { color: #cc0000; text-align: center; }
+        .section { background: white; padding: 15px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .control { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+        .label { font-weight: bold; }
+        .buttons { display: flex; gap: 10px; align-items: center; }
+        button { padding: 5px 12px; font-size: 18px; border: none; border-radius: 5px; background-color: #cc0000; color: white; }
+        .output { font-size: 18px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Carga Tesla Model 3</h1>
+
+    <div class="section">
+        <div class="label">Tiempo de carga (horas):</div>
+        <div class="control">
+            <div class="buttons">
+                <button onclick="ajustar('tiempo', -0.1)">−</button>
+                <span id="tiempo-val">1.0</span> h
+                <button onclick="ajustar('tiempo', 0.1)">+</button>
+            </div>
+        </div>
+
+        <div class="label">Potencia real (kW):</div>
+        <div class="control">
+            <div class="buttons">
+                <button onclick="ajustar('potencia', -0.5)">−</button>
+                <span id="potencia-val">10.5</span> kW
+                <button onclick="ajustar('potencia', 0.5)">+</button>
+            </div>
+        </div>
+
+        <div class="label">Precio por kWh (€):</div>
+        <div class="control">
+            <div class="buttons">
+                <button onclick="ajustar('coste', -0.01)">−</button>
+                <span id="coste-val">0.30</span> €
+                <button onclick="ajustar('coste', 0.01)">+</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="output"><strong>Energía cargada:</strong> <span id="energia">10.5</span> kWh</div>
+        <div class="output"><strong>Autonomía estimada:</strong> <span id="km-min">62</span> - <span id="km-max">75</span> km</div>
+        <div class="output"><strong>Coste estimado:</strong> <span id="coste-total">3.15</span> €</div>
+    </div>
+
+    <script>
+        let tiempo = 1.0, potencia = 10.5, coste = 0.30;
+
+        function ajustar(variable, cambio) {
+            if (variable === 'tiempo') {
+                tiempo = Math.max(0.1, Math.min(3, (tiempo + cambio)));
+                document.getElementById("tiempo-val").innerText = tiempo.toFixed(1);
+            } else if (variable === 'potencia') {
+                potencia = Math.max(1, Math.min(22, (potencia + cambio)));
+                document.getElementById("potencia-val").innerText = potencia.toFixed(1);
+            } else if (variable === 'coste') {
+                coste = Math.max(0, (coste + cambio));
+                document.getElementById("coste-val").innerText = coste.toFixed(2);
+            }
+            actualizar();
+        }
+
+        function actualizar() {
+            const energia = potencia * tiempo;
+            const autonomiaMin = Math.round(energia / 17 * 100);
+            const autonomiaMax = Math.round(energia / 14 * 100);
+            const costeTotal = energia * coste;
+
+            document.getElementById("energia").innerText = energia.toFixed(1);
+            document.getElementById("km-min").innerText = autonomiaMin;
+            document.getElementById("km-max").innerText = autonomiaMax;
+            document.getElementById("coste-total").innerText = costeTotal.toFixed(2);
+        }
+
+        actualizar();
+    </script>
+</body>
+</html>
