@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora Carga Tesla Model 3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            height: 100%;
+            overflow-x: hidden;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        h1 {
+            color: #cc0000;
+            text-align: center;
+            padding: 20px 10px;
+            font-size: 28px;
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+        .label {
+            font-weight: bold;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+        .control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .buttons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 28px;
+            border: none;
+            border-radius: 10px;
+            background-color: #cc0000;
+            color: white;
+            width: 60px;
+            height: 60px;
+        }
+        input[type=number] {
+            width: 100px;
+            padding: 12px;
+            font-size: 26px;
+            text-align: center;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+        }
+        .output {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Carga Tesla Model 3</h1>
+    <div class="container">
+        <div class="section">
+            <div class="label">Tiempo de carga (h):</div>
+            <div class="control">
+                <div class="buttons">
+                    <button onclick="ajustar('tiempo', -0.1)">−</button>
+                    <input type="number" id="tiempo-val" value="1.0" step="0.1" min="0.1" max="3" onchange="actualizar()">
+                    <button onclick="ajustar('tiempo', 0.1)">+</button>
+                </div>
+            </div>
+
+            <div class="label">Potencia real (kW):</div>
+            <div class="control">
+                <div class="buttons">
+                    <button onclick="ajustar('potencia', -0.5)">−</button>
+                    <input type="number" id="potencia-val" value="10.5" step="0.5" min="1" max="22" onchange="actualizar()">
+                    <button onclick="ajustar('potencia', 0.5)">+</button>
+                </div>
+            </div>
+
+            <div class="label">Precio por kWh (€):</div>
+            <div class="control">
+                <div class="buttons">
+                    <button onclick="ajustar('coste', -0.01)">−</button>
+                    <input type="number" id="coste-val" value="0.30" step="0.01" min="0" onchange="actualizar()">
+                    <button onclick="ajustar('coste', 0.01)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="output"><strong>Energía cargada:</strong> <span id="energia">10.5</span> kWh</div>
+            <div class="output"><strong>Autonomía estimada:</strong> <span id="km-min">62</span> - <span id="km-max">75</span> km</div>
+            <div class="output"><strong>Coste estimado:</strong> <span id="coste-total">3.15</span> €</div>
+        </div>
+    </div>
+
+    <script>
+        function ajustar(variable, cambio) {
+            const input = document.getElementById(variable + "-val");
+            let valor = parseFloat(input.value);
+            valor = valor + cambio;
+            if (variable === "tiempo") valor = Math.max(0.1, Math.min(3, valor));
+            if (variable === "potencia") valor = Math.max(1, Math.min(22, valor));
+            if (variable === "coste") valor = Math.max(0, valor);
+            input.value = valor.toFixed(variable === "coste" ? 2 : 1);
+            actualizar();
+        }
+
+        function actualizar() {
+            const tiempo = parseFloat(document.getElementById("tiempo-val").value);
+            const potencia = parseFloat(document.getElementById("potencia-val").value);
+            const coste = parseFloat(document.getElementById("coste-val").value);
+
+            const energia = potencia * tiempo;
+            const autonomiaMin = Math.round(energia / 17 * 100);
+            const autonomiaMax = Math.round(energia / 14 * 100);
+            const costeTotal = energia * coste;
+
+            document.getElementById("energia").innerText = energia.toFixed(1);
+            document.getElementById("km-min").innerText = autonomiaMin;
+            document.getElementById("km-max").innerText = autonomiaMax;
+            document.getElementById("coste-total").innerText = costeTotal.toFixed(2);
+        }
+    </script>
+</body>
+</html>
