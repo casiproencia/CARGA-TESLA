@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>CARGA T3SLA</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+    }
+    h1 {
+      text-align: center;
+      color: #ff3b3b;
+      font-size: 24px;
+    }
+    select, input {
+      font-size: 18px;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 6px;
+      border: none;
+      width: 100%;
+      max-width: 250px;
+      background: #1e1e1e;
+      color: #fff;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .results {
+      margin-top: 20px;
+      font-size: 18px;
+      text-align: center;
+    }
+    .highlight {
+      animation: flash 0.5s ease;
+    }
+    @keyframes flash {
+      0% { background-color: #ff3b3b; color: #fff; }
+      100% { background-color: transparent; }
+    }
+    .warning {
+      color: #ff3b3b;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>CARGA T3SLA</h1>
+
+  <div class="control-group">
+    <label>Modelo:</label>
+    <select id="modelo" onchange="updateBattery()">
+      <option value="model3_2021">Model 3 (2021)</option>
+      <option value="model3_2019">Model 3 (2019)</option>
+      <option value="modely_2022">Model Y (2022)</option>
+      <option value="models_2020">Model S (2020)</option>
+      <option value="modelx_2020">Model X (2020)</option>
+    </select>
+
+    <label>Tiempo de carga (h):</label>
+    <input type="number" id="tiempo" value="1" min="0.1" step="0.1" oninput="actualizar()"/>
+
+    <label>Potencia real (kW):</label>
+    <input type="number" id="potencia" value="11" min="1" step="0.5" oninput="actualizar()"/>
+
+    <label>Precio por kWh (€):</label>
+    <input type="number" id="precio" value="0.30" min="0" step="0.01" oninput="actualizar()"/>
+
+    <label>% inicial de batería:</label>
+    <input type="number" id="porcentajeInicial" value="40" min="0" max="100" step="1" oninput="actualizar()"/>
+  </div>
+
+  <div class="results">
+    <p><strong>Energía cargada:</strong> <span id="energia">0</span> kWh</p>
+    <p><strong>Autonomía ganada:</strong> <span id="kms">0</span> km</p>
+    <p><strong>Porcentaje añadido:</strong> <span id="porcentajeAñadido">0</span>%</p>
+    <p><strong>Coste estimado:</strong> <span id="coste">0</span> €</p>
+    <p id="aviso" class="warning"></p>
+  </div>
+
+  <audio id="sonidoClick" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_74ef190c63.mp3?filename=click-124467.mp3"></audio>
+
+  <script>
+    const capacidades = {
+      model3_2021: 60,
+      model3_2019: 55,
+      modely_2022: 75,
+      models_2020: 100,
+      modelx_2020: 100
+    };
+
+    function updateBattery() {
+      playClick();
+      actualizar();
+    }
+
+    function playClick() {
+      const audio = document.getElementById("sonidoClick");
+      audio.currentTime = 0;
+      audio.play();
+    }
+
+    function actualizar() {
+      playClick();
+
+      const modelo = document.getElementById("modelo").value;
+      const capacidad = capacidades[modelo];
+      const tiempo = parseFloat(document.getElementById("tiempo").value);
+      const potencia = parseFloat(document.getElementById("potencia").value);
+      const precio = parseFloat(document.getElementById("precio").value);
+      const porcentajeInicial = parseFloat(document.getElementById("porcentajeInicial").value);
+
+      const energia = potencia * tiempo;
+      const porcentajeAñadido = (energia / capacidad) * 100;
+      const porcentajeTotal = porcentajeInicial + porcentajeAñadido;
+      const autonomiaMin = Math.round(energia / 17 * 100);
+      const autonomiaMax = Math.round(energia / 14 * 100);
+      const coste = energia * precio;
+
+      document.getElementById("energia").innerText = energia.toFixed(1);
+      document.getElementById("kms").innerText = `${autonomiaMin} - ${autonomiaMax}`;
+      document.getElementById("porcentajeAñadido").innerText = porcentajeAñadido.toFixed(1);
+      document.getElementById("coste").innerText = coste.toFixed(2);
+
+      const aviso = document.getElementById("aviso");
+      if (porcentajeTotal >= 100) {
+        aviso.textContent = "¡Carga completa! Has alcanzado el 100% o más.";
+      } else {
+        aviso.textContent = "";
+      }
+
+      // animación
+      document.getElementById("energia").classList.add("highlight");
+      setTimeout(() => document.getElementById("energia").classList.remove("highlight"), 500);
+    }
+
+    actualizar();
+  </script>
+</body>
+</html>
